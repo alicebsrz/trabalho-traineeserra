@@ -1,4 +1,31 @@
+# =========================================
+# Dependências
+# =========================================
+node_modules
+.pnp
+.pnp.js
+
+# =========================================
+# Variáveis de Ambiente (CRÍTICO)
+# =========================================
+# Impede que sua chave do Google Books e futuras senhas vazem no GitHub
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# =========================================
+# Build / Produção
+# =========================================
+dist
+dist-ssr
+build
+out
+
+# =========================================
 # Logs
+# =========================================
 logs
 *.log
 npm-debug.log*
@@ -7,14 +34,35 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# =========================================
+# Arquivos de Cache e Ferramentas (Vite/React)
+# =========================================
+.eslintcache
+.vite
+vite.config.ts.timestamp-*
+vite.config.js.timestamp-*
+tsconfig.tsbuildinfo
 
-# Editor directories and files
+# =========================================
+# Testes
+# =========================================
+coverage
+
+# =========================================
+# Banco de Dados (Prevenção)
+# =========================================
+# Evita comitar dumps ou scripts soltos por acidente
+*.sql
+*.sqlite
+*.sqlite3
+*.db
+
+# =========================================
+# Diretórios de Editores e SO
+# =========================================
 .vscode/*
 !.vscode/extensions.json
+!.vscode/settings.json
 .idea
 .DS_Store
 *.suo
@@ -22,3 +70,4 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+Thumbs.db
