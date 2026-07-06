@@ -1,5 +1,5 @@
-import { FastifyInstance } from 'fastify'
-import { prisma } from "../lib/prisma";
+import type { FastifyInstance } from 'fastify'
+import { prisma } from "../lib/prisma.ts";
 import { z } from "zod";
 
 const livrosSchema = z.object({
