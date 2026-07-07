@@ -306,6 +306,50 @@ export function Results() {
 
 function BlindBookCard({ book, bgColor }: { book: Book; bgColor: string }) {
   const [isRevealed, setIsRevealed] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSaveBook = async (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+
+    const token = localStorage.getItem('@BibliotecaVirtual:token');
+
+    if (!token) {
+      alert('Voce precisa estar logado para salvar livros na estante!');
+      navigate('/login');
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      const response = await fetch('http://localhost:3333/livros', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          title: book.title,
+          author: book.authors ? book.authors.join(', ') : 'Autor Desconhecido',
+          coverUrl: book.coverUrl,
+          status: 'TO_READ',
+        }),
+      });
+
+      if (response.ok) {
+        setIsSaved(true);
+      } else {
+        throw new Error('Falha ao salvar no banco de dados');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Ops! Houve um erro ao salvar o livro. Tente novamente.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="group relative h-[550px] w-full cursor-pointer" style={{ perspective: 1000 }}>
@@ -315,6 +359,7 @@ function BlindBookCard({ book, bgColor }: { book: Book; bgColor: string }) {
         animate={{ rotateY: isRevealed ? 180 : 0 }}
         transition={{ duration: 0.6, type: 'spring', stiffness: 260, damping: 20 }}
       >
+        {/* Lado da Sinopse (Frente) */}
         <div 
           className={`absolute flex h-full w-full flex-col justify-between border-4 border-black ${bgColor} p-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]`}
           style={{ backfaceVisibility: 'hidden' }}
@@ -343,6 +388,7 @@ function BlindBookCard({ book, bgColor }: { book: Book; bgColor: string }) {
           </button>
         </div>
 
+        {/* Lado da Capa (Costas) */}
         <div 
           className="absolute flex h-full w-full flex-col items-center justify-between border-4 border-black bg-white p-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)]"
           style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
@@ -362,13 +408,15 @@ function BlindBookCard({ book, bgColor }: { book: Book; bgColor: string }) {
           </div>
           
           <button 
-            className="w-full shrink-0 border-4 border-black bg-black py-4 font-sans text-lg font-black uppercase text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(255,107,107,1)] active:translate-y-1 active:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]"
-            onClick={(e) => {
-              e.stopPropagation();
-              alert(`Back-end: Livro "${book.title}" adicionado à estante!`);
-            }}
+            className={`w-full shrink-0 border-4 border-black py-4 font-sans text-lg font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform ${
+              isSaved
+                ? 'bg-[#4ECDC4] text-black cursor-default'
+                : 'bg-black text-white hover:-translate-y-1 hover:shadow-[6px_6px_0px_0px_rgba(255,107,107,1)] active:translate-y-1 active:shadow-[0px_0px_0px_0px_rgba(0,0,0,1)]'
+            }`}
+            onClick={isSaved ? undefined : handleSaveBook}
+            disabled={isSaving || isSaved}
           >
-            + Guardar na Estante
+            {isSaving ? 'Guardando...' : isSaved ? '✓ Salvo na Estante' : '+ Guardar na Estante'}
           </button>
         </div>
       </motion.div>
